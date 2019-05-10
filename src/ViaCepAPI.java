@@ -1,3 +1,5 @@
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,18 +7,44 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ *  API para Obtenção de dados baseados em um CEP específico
+ */
+
 public class ViaCepAPI {
 
-    private String urlBase = "https://viacep.com.br/ws/";
+    private String urlBase = "https://viacep.com.br/ws";
 
-    public String buscarCEP(String cep){
+    public CEP buscarCEP(String cep) throws Exception {
+
+        // Remove tudo que não for numero do CEP
+        cep = cep.replaceAll("[^0-9]", "");
 
         String url = this.urlBase + '/' + cep + "/json";
 
-        return this.requisitar(url);
+        JSONObject jsonObject = new JSONObject(this.requisitar(url));
+
+        if(!jsonObject.has("erro")) {
+            CEP cepRetorno = new CEP(
+                    jsonObject.getString("cep"),
+                    jsonObject.getString("logradouro"),
+                    jsonObject.getString("complemento"),
+                    jsonObject.getString("bairro"),
+                    jsonObject.getString("localidade"),
+                    jsonObject.getString("uf"),
+                    jsonObject.getString("unidade"),
+                    jsonObject.getString("ibge"),
+                    jsonObject.getString("gia")
+
+            );
+            return cepRetorno;
+        }else{
+            throw new Exception("CEP inválido!");
+        }
     }
 
     /**
+     * Cria uma requisição HTTP com o Verbo GET
      * @param urlRequisicao Url alvo da requisição
      * @return String contendo o JSON de retorno
      */
@@ -36,9 +64,9 @@ public class ViaCepAPI {
             return resultado.toString();
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return null;

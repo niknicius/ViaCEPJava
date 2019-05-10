@@ -5,7 +5,11 @@ public class Main {
 
         ViaCepAPI api = new ViaCepAPI();
 
-        System.out.println(api.buscarCEP("58278000"));
+        try {
+            System.out.println(api.buscarCEP("58278000").getLocalidade());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 
